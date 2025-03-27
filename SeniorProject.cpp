@@ -123,53 +123,38 @@ int main() {
             Xpos = (Lx * inputVoltageX) / (2.0 * inputVoltageSUM);	//New laser position for X
             Ypos = (Ly * inputVoltageY) / (2.0 * inputVoltageSUM);	//New laser postioin for Y
 
-            if (Xflag) 
-			{ // If Xflag is true move X axis first
-                if (Xpos > (LevelX + Xtol)) 
+            //if (Xflag) 
+			//{ // If Xflag is true move X axis first
+                if ((Xpos > (LevelX + Xtol)) || (Xpos < (LevelX - Xtol))) 
 				{ // If Xpos is greater than LevelX + Xtol
-                    MoveDistanceX((Xpos - LevelX) / delta);
+                    MoveDistanceX((LevelX - Xpos) / delta);
                 } 
-				else if (Xpos < (LevelX - Xtol)) 
-				{ // If Xpos is less than LevelX - Xtol
-                    MoveDistanceX( int32_t((LevelX - Xpos) / delta)); 
-                }
                 
-                if (Ypos > (LevelY + Ytol)) 
+                if ((Ypos > (LevelY + Ytol))|| Ypos < (LevelY - Ytol)) 
 				{ // If Ypos is greater than LevelY + Ytol
-                    MoveDistanceY( int32_t((Ypos - LevelY) / delta));
+                    MoveDistanceY( int32_t((LevelY - Ypos) / delta));
                 } 
-				else if (Ypos < (LevelY - Ytol)) 
-				{ // If Ypos is less than LevelY - Ytol
-                    MoveDistanceY(int32_t((LevelY - Ypos) / delta));
-                }
-            } 
-			else 
+				
+            //} 
+/*			else 
 			{ // If Xflag is false move Y axis first
-                if (Ypos > (LevelY + Ytol)) 
+				if ((Ypos > (LevelY + Ytol))|| Ypos < (LevelY - Ytol)) 
 				{ // If Ypos is greater than LevelY + Ytol
-                    MoveDistanceY(int32_t((Ypos - LevelY) / delta));
-                }
-				else if (Ypos < (LevelY - Ytol)) 
-				{ // If Ypos is less than LevelY - Ytol
-                    MoveDistanceY(int32_t((LevelY - Ypos) / delta));
-                }
-                
-                if (Xpos > (LevelX + Xtol)) 
+                   MoveDistanceY( int32_t((LevelY - Ypos) / delta));
+				}   
+				
+				if ((Xpos > (LevelX + Xtol)) || (Xpos < (LevelX - Xtol))) 
 				{ // If Xpos is greater than LevelX + Xtol
-                    MoveDistanceX(int32_t((Xpos - LevelX) / delta)); 
+                    MoveDistanceX((LevelX - Xpos) / delta);
                 } 
-				else if (Xpos < (LevelX - Xtol)) 
-				{ // If Xpos is less than LevelX - Xtol
-                    MoveDistanceX(int32_t((LevelX - Xpos) / delta));
-                }
             }
             Xflag = !Xflag; // Switch flag for next iteration
-		}
+*/		}
 	
 		else 
 		{
 			LevelFlag = false; //If switch is off reset LevelFlag
-		}
+		} 
 		Delay_ms(1000);		// Wait a 1 second before the next reading.
 	}
 }
