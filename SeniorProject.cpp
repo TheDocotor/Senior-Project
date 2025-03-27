@@ -30,13 +30,7 @@
 const int32_t velocityLimit = 10000; // pulses per sec
 const int32_t accelerationLimit = 100000; // pulses per sec^2
  
-//Define constants for PDP90A
-const int32_t Lx = 10E-3; // Length of x axis in m
-const int32_t Ly = 10E-3; // Length of y axis in m
-const int32_t en = 300E-6; // Output noise voltage in Vrms
-const int32_t Xtol = .05; // X axis tolerance 
-const int32_t Ytol = .05; // Y axis tolerance
-const int32_t delta = 1; // Steps for smallest delta voltage
+
 
 int16_t leveling; // State of input switch
 
@@ -66,18 +60,41 @@ int main() {
     // Set the resolution of the ADC.
     AdcMgr.AdcResolution(adcResolution);
 	inputPin.Mode(Connector::INPUT_DIGITAL);
+	
+	//Motor config
+	MotorMgr.MotorInputClocking(MotorManager::CLOCK_RATE_NORMAL);
+	MotorMgr.MotorModeSet(MotorManager::MOTOR_ALL, Connector::CPM_MODE_STEP_AND_DIR);
+	motorX.HlfbMode(MotorDriver::HLFB_MODE_HAS_BIPOLAR_PWM);
+	motorY.HlfbMode(MotorDriver::HLFB_MODE_HAS_BIPOLAR_PWM);
+	motorX.HlfbCarrier(MotorDriver::HLFB_CARRIER_482_HZ);
+	motorY.HlfbCarrier(MotorDriver::HLFB_CARRIER_482_HZ);
+	motorX.VelMax(velocityLimit);
+	motorY.VelMax(velocityLimit);
+	motorX.AccelMax(accelerationLimit);
+	motorY.AccelMax(accelerationLimit);
+	motorX.EnableRequest(true);
+	motorY.EnableRequest(true);
+	
 
     double inputVoltageSUM, inputVoltageY, inputVoltageX = 0.0;
     bool LevelFlag = false;	//Used to set level position of first iteration of loop
     bool Xflag = true;	//Used to determine which axis to move first
     double LevelX, LevelY, Xpos, Ypos = 0.0;
+	//Define constants for PDP90A
+	const double Lx = 10E-3; // Length of x axis in m
+	const double Ly = 10E-3; // Length of y axis in m
+	const double en = 300E-6; // Output noise voltage in Vrms
+	const double Xtol = 5E-4; // X axis tolerance
+	const double Ytol = 5E-4; // Y axis tolerance
+	const double delta = 0.0000001; // Steps for smallest delta voltage
+	
     int16_t adcSUM, adcY, adcX = 0;
  
     while (true) {
 
-        inputVoltageSUM = 0.0;
-        inputVoltageY = 0.0;
-        inputVoltageX = 0.0;
+        //inputVoltageSUM = 0.0;
+        //inputVoltageY = 0.0;
+        //inputVoltageX = 0.0;
 		leveling = inputPin.State();
         // Read the analog input (A-9 through A-12 may be configured as analog
         // inputs).
@@ -108,42 +125,42 @@ int main() {
 
             if (Xflag) 
 			{ // If Xflag is true move X axis first
-                if (Xpos > LevelX + Xtol) 
+                if (Xpos > (LevelX + Xtol)) 
 				{ // If Xpos is greater than LevelX + Xtol
                     MoveDistanceX((Xpos - LevelX) / delta);
                 } 
-				else if (Xpos < LevelX - Xtol) 
+				else if (Xpos < (LevelX - Xtol)) 
 				{ // If Xpos is less than LevelX - Xtol
-                    MoveDistanceX((LevelX - Xpos) / delta); 
+                    MoveDistanceX( int32_t((LevelX - Xpos) / delta)); 
                 }
                 
-                if (Ypos > LevelY + Ytol) 
+                if (Ypos > (LevelY + Ytol)) 
 				{ // If Ypos is greater than LevelY + Ytol
-                    MoveDistanceY((Ypos - LevelY) / delta);
+                    MoveDistanceY( int32_t((Ypos - LevelY) / delta));
                 } 
-				else if (Ypos < LevelY - Ytol) 
+				else if (Ypos < (LevelY - Ytol)) 
 				{ // If Ypos is less than LevelY - Ytol
-                    MoveDistanceY((LevelY - Ypos) / delta);
+                    MoveDistanceY(int32_t((LevelY - Ypos) / delta));
                 }
             } 
 			else 
 			{ // If Xflag is false move Y axis first
-                if (Ypos > LevelY + Ytol) 
+                if (Ypos > (LevelY + Ytol)) 
 				{ // If Ypos is greater than LevelY + Ytol
-                    MoveDistanceY((Ypos - LevelY) / delta);
+                    MoveDistanceY(int32_t((Ypos - LevelY) / delta));
                 }
-				else if (Ypos < LevelY - Ytol) 
+				else if (Ypos < (LevelY - Ytol)) 
 				{ // If Ypos is less than LevelY - Ytol
-                    MoveDistanceY((LevelY - Ypos) / delta);
+                    MoveDistanceY(int32_t((LevelY - Ypos) / delta));
                 }
                 
-                if (Xpos > LevelX + Xtol) 
+                if (Xpos > (LevelX + Xtol)) 
 				{ // If Xpos is greater than LevelX + Xtol
-                    MoveDistanceX((Xpos - LevelX) / delta); 
+                    MoveDistanceX(int32_t((Xpos - LevelX) / delta)); 
                 } 
-				else if (Xpos < LevelX - Xtol) 
+				else if (Xpos < (LevelX - Xtol)) 
 				{ // If Xpos is less than LevelX - Xtol
-                    MoveDistanceX((LevelX - Xpos) / delta);
+                    MoveDistanceX(int32_t((LevelX - Xpos) / delta));
                 }
             }
             Xflag = !Xflag; // Switch flag for next iteration
