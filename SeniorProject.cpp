@@ -84,9 +84,9 @@ int main() {
 	const double Lx = 10E-3; // Length of x axis in m
 	const double Ly = 10E-3; // Length of y axis in m
 	const double en = 300E-6; // Output noise voltage in Vrms
-	const double Xtol = 5E-4; // X axis tolerance
-	const double Ytol = 5E-4; // Y axis tolerance
-	const double delta = 0.0000001; // Steps for smallest delta voltage
+	const double Xtol = 5E-2; // X axis tolerance
+	const double Ytol = 5E-2; // Y axis tolerance
+	const double delta = 0.01; // Steps for smallest delta voltage
 	
     int16_t adcSUM, adcY, adcX = 0;
  
@@ -102,11 +102,11 @@ int main() {
         // Convert the reading to a voltage.
         inputVoltageSUM = 10.0 * adcSUM / ((1 << adcResolution) - 1);
         
-        adcY = ConnectorA11.State();
+        adcY = ConnectorA10.State();
         // Convert the reading to a voltage.
         inputVoltageY = 10.0 * adcY / ((1 << adcResolution) - 1);
         
-        adcX = ConnectorA10.State();
+        adcX = ConnectorA11.State();
         // Convert the reading to a voltage.
         inputVoltageX = 10.0 * adcX / ((1 << adcResolution) - 1);
 
