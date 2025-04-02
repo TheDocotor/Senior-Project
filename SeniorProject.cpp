@@ -76,17 +76,17 @@ int main() {
 	motorY.EnableRequest(true);
 	
 
-    double inputVoltageSUM, inputVoltageY, inputVoltageX = 0.0;
+    double inputVoltageSUM, inputVoltageY, inputVoltageX, delta, Xtol, Ytol = 0.0;
     bool LevelFlag = false;	//Used to set level position of first iteration of loop
-    bool Xflag = true;	//Used to determine which axis to move first
+    //bool Xflag = true;	//Used to determine which axis to move first
     double LevelX, LevelY, Xpos, Ypos = 0.0;
 	//Define constants for PDP90A
 	const double Lx = 10E-3; // Length of x axis in m
 	const double Ly = 10E-3; // Length of y axis in m
-	const double en = 300E-6; // Output noise voltage in Vrms
-	const double Xtol = 5E-2; // X axis tolerance
-	const double Ytol = 5E-2; // Y axis tolerance
-	const double delta = 0.01; // Steps for smallest delta voltage
+	//const double en = 300E-6; // Output noise voltage in Vrms
+	const double Xvoltol = 5E-2; // X axis tolerance
+	const double Yvoltol = 5E-2; // Y axis tolerance
+	const double deltavoltol = 3E-4; // Steps for smallest delta voltage
 	
     int16_t adcSUM, adcY, adcX = 0;
  
@@ -116,6 +116,9 @@ int main() {
 			{	//If level flag is false calibrate level position to be compared to new level data and set flag to true
                 LevelX = (Lx * inputVoltageX) / (2.0 * inputVoltageSUM);	//Set LevelX sensor position
                 LevelY = (Ly * inputVoltageY) / (2.0 * inputVoltageSUM);	//Set LevelY sensor position
+				Xtol = (Lx * Xvoltol) / (2.0 * inputVoltageSUM);
+				Xtol = (Ly * Yvoltol) / (2.0 * inputVoltageSUM);
+				delta = (Lx * deltavoltol)/(2.0* inputVoltageSUM);
 				LevelFlag = true;
             }
     
@@ -132,7 +135,7 @@ int main() {
                 
                 if ((Ypos > (LevelY + Ytol))|| Ypos < (LevelY - Ytol)) 
 				{ // If Ypos is greater than LevelY + Ytol
-                    MoveDistanceY( int32_t((LevelY - Ypos) / delta));
+                    MoveDistanceY(int32_t(-1.0*(LevelY - Ypos) / delta));
                 } 
 				
             //} 
