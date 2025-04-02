@@ -85,9 +85,9 @@ int main() {
 	const double Lx = 10E-3; // Length of x axis in m
 	const double Ly = 10E-3; // Length of y axis in m
 	//const double en = 300E-6; // Output noise voltage in Vrms
-	const double Xvoltol = 2E-3; // X axis tolerance
-	const double Yvoltol = 2E-3; // Y axis tolerance
-	const double deltavoltolY = 4E-4; // Steps for smallest delta voltage
+	const double Xvoltol = 2E-2; // X axis tolerance
+	const double Yvoltol = 2E-2; // Y axis tolerance
+	const double deltavoltolY = 3E-4; // Steps for smallest delta voltage
 	const double deltavoltolX = 3E-4; // Steps for smallest delta voltage
 	
     int16_t adcSUM, adcY, adcX = 0;
@@ -130,29 +130,31 @@ int main() {
 			{	//Once switch has been set to the on position the bed is level, enter automated leveling state
 				if (LevelFlag==false) 
 				{	//If level flag is false calibrate level position to be compared to new level data and set flag to true
-					LevelX = (Lx * inputVoltageX) / (2.0 * inputVoltageSUM);	//Set LevelX sensor position
-					LevelY = (Ly * inputVoltageY) / (2.0 * inputVoltageSUM);	//Set LevelY sensor position
-					Xtol = (Lx * Xvoltol) / (2.0 * inputVoltageSUM);
-					Ytol = (Ly * Yvoltol) / (2.0 * inputVoltageSUM);
-					deltaX = (Lx * deltavoltolX)/(2.0* inputVoltageSUM);
-					deltaY = (Ly * deltavoltolY)/(2.0* inputVoltageSUM);
+					LevelX = inputVoltageX;	//Set LevelX sensor position
+					LevelY = inputVoltageY;	//Set LevelY sensor position
+					Xtol = Xvoltol;
+					Ytol = Yvoltol;
+					deltaX = deltavoltolX;
+					deltaY = deltavoltolY;
 					LevelFlag = true;
 				}
     
 
-				Xpos = (Lx * inputVoltageX) / (2.0 * inputVoltageSUM);	//New laser position for X
-				Ypos = (Ly * inputVoltageY) / (2.0 * inputVoltageSUM);	//New laser postioin for Y
+				Xpos = inputVoltageX;	//New laser position for X
+				Ypos = inputVoltageY;	//New laser postioin for Y
 
 				//if (Xflag) 
 				//{ // If Xflag is true move X axis first
-					if ((Xpos > (LevelX + Xtol)) || (Xpos < (LevelX - Xtol))) 
-					{ // If Xpos is greater than LevelX + Xtol
-						MoveDistanceX(int32_t((LevelX - Xpos) / deltaX));
-					} 
+					
                 
 					if ((Ypos > (LevelY + Ytol))|| Ypos < (LevelY - Ytol)) 
 					{ // If Ypos is greater than LevelY + Ytol
 						MoveDistanceY(int32_t((Ypos - LevelY) / deltaY));
+					} 
+					
+					if ((Xpos > (LevelX + Xtol)) || (Xpos < (LevelX - Xtol))) 
+					{ // If Xpos is greater than LevelX + Xtol
+						MoveDistanceX(int32_t((LevelX - Xpos) / deltaX));
 					} 
 				
 				//} 
@@ -177,7 +179,7 @@ int main() {
 			} 
 		}
 		count += 1;
-		Delay_ms(100);		// Wait a .1 second before the next reading.
+		Delay_ms(50);		// Wait a .1 second before the next reading.
 	}
 }
  
