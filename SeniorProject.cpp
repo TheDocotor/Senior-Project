@@ -84,8 +84,8 @@ int main() {
 	const double Lx = 10E-3; // Length of x axis in m
 	const double Ly = 10E-3; // Length of y axis in m
 	//const double en = 300E-6; // Output noise voltage in Vrms
-	const double Xvoltol = 5E-2; // X axis tolerance
-	const double Yvoltol = 5E-2; // Y axis tolerance
+	const double Xvoltol = 2E-2; // X axis tolerance
+	const double Yvoltol = 2E-2; // Y axis tolerance
 	const double deltavoltol = 3E-4; // Steps for smallest delta voltage
 	
     int16_t adcSUM, adcY, adcX = 0;
@@ -117,14 +117,14 @@ int main() {
                 LevelX = (Lx * inputVoltageX) / (2.0 * inputVoltageSUM);	//Set LevelX sensor position
                 LevelY = (Ly * inputVoltageY) / (2.0 * inputVoltageSUM);	//Set LevelY sensor position
 				Xtol = (Lx * Xvoltol) / (2.0 * inputVoltageSUM);
-				Xtol = (Ly * Yvoltol) / (2.0 * inputVoltageSUM);
+				Ytol = (Ly * Yvoltol) / (2.0 * inputVoltageSUM);
 				delta = (Lx * deltavoltol)/(2.0* inputVoltageSUM);
 				LevelFlag = true;
             }
     
 
             Xpos = (Lx * inputVoltageX) / (2.0 * inputVoltageSUM);	//New laser position for X
-            Ypos = (Ly * inputVoltageY) / (2.0 * inputVoltageSUM);	//New laser postioin for Y
+            Ypos = (Ly * inputVoltageY) / (2.0 * inputVoltageSUM);	//New laser position for Y
 
             //if (Xflag) 
 			//{ // If Xflag is true move X axis first
@@ -133,9 +133,9 @@ int main() {
                     MoveDistanceX((LevelX - Xpos) / delta);
                 } 
                 
-                if ((Ypos > (LevelY + Ytol))|| Ypos < (LevelY - Ytol)) 
+                if ((Ypos > (LevelY + Ytol))|| (Ypos < (LevelY - Ytol))) 
 				{ // If Ypos is greater than LevelY + Ytol
-                    MoveDistanceY(int32_t(-1.0*(LevelY - Ypos) / delta));
+                    MoveDistanceY((Ypos - LevelY) / delta);
                 } 
 				
             //} 
