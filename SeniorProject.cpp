@@ -76,7 +76,7 @@ int main() {
 	motorY.EnableRequest(true);
 	
 
-    double inputVoltageSUM, inputVoltageY, inputVoltageX, delta, Xtol, Ytol, SumX, SumY, SumSum, voltageX, voltageY, voltageSum = 0.0;
+    double inputVoltageSUM, inputVoltageY, inputVoltageX, deltaX, deltaY, Xtol, Ytol, SumX, SumY, SumSum, voltageX, voltageY, voltageSum = 0.0;
     bool LevelFlag = false;	//Used to set level position of first iteration of loop
     //bool Xflag = true;	//Used to determine which axis to move first
     double LevelX, LevelY, Xpos, Ypos = 0.0;
@@ -85,9 +85,10 @@ int main() {
 	const double Lx = 10E-3; // Length of x axis in m
 	const double Ly = 10E-3; // Length of y axis in m
 	//const double en = 300E-6; // Output noise voltage in Vrms
-	const double Xvoltol = 2E-2; // X axis tolerance
-	const double Yvoltol = 2E-2; // Y axis tolerance
-	const double deltavoltol = 3E-4; // Steps for smallest delta voltage
+	const double Xvoltol = 2E-3; // X axis tolerance
+	const double Yvoltol = 2E-3; // Y axis tolerance
+	const double deltavoltolY = 4E-4; // Steps for smallest delta voltage
+	const double deltavoltolX = 3E-4; // Steps for smallest delta voltage
 	
     int16_t adcSUM, adcY, adcX = 0;
  
@@ -133,7 +134,8 @@ int main() {
 					LevelY = (Ly * inputVoltageY) / (2.0 * inputVoltageSUM);	//Set LevelY sensor position
 					Xtol = (Lx * Xvoltol) / (2.0 * inputVoltageSUM);
 					Ytol = (Ly * Yvoltol) / (2.0 * inputVoltageSUM);
-					delta = (Lx * deltavoltol)/(2.0* inputVoltageSUM);
+					deltaX = (Lx * deltavoltolX)/(2.0* inputVoltageSUM);
+					deltaY = (Ly * deltavoltolY)/(2.0* inputVoltageSUM);
 					LevelFlag = true;
 				}
     
@@ -145,12 +147,12 @@ int main() {
 				//{ // If Xflag is true move X axis first
 					if ((Xpos > (LevelX + Xtol)) || (Xpos < (LevelX - Xtol))) 
 					{ // If Xpos is greater than LevelX + Xtol
-						MoveDistanceX(int32_t((LevelX - Xpos) / delta));
+						MoveDistanceX(int32_t((LevelX - Xpos) / deltaX));
 					} 
                 
 					if ((Ypos > (LevelY + Ytol))|| Ypos < (LevelY - Ytol)) 
 					{ // If Ypos is greater than LevelY + Ytol
-						MoveDistanceY(int32_t(-1.0*(LevelY - Ypos) / delta));
+						MoveDistanceY(int32_t((Ypos - LevelY) / deltaY));
 					} 
 				
 				//} 
