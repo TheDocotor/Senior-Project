@@ -24,11 +24,11 @@
 //  your system will not enter an unsafe state. 
 // To enable automatic alert handling, #define HANDLE_ALERTS (1)
 // To disable automatic alert handling, #define HANDLE_ALERTS (0)
-#define HANDLE_ALERTS (0)
+#define HANDLE_ALERTS (1)
 #define inputPin ConnectorIO5
 // Define the velocity and acceleration limits to be used for each move
 const int32_t velocityLimit = 10000; // 10000pulses per sec
-const int32_t accelerationLimit = 50000; //50000 pulses per sec^2
+const int32_t accelerationLimit = 10000; //50000 pulses per sec^2
  
 
 
@@ -38,6 +38,8 @@ int16_t leveling; // State of input switch
 // Declares user-defined helper functions.
 void MoveDistanceX(int32_t distance);
 void MoveDistanceY(int32_t distance);
+void HandleAlertsY();
+void HandleAlertsX();
 
 
 /*------------------------------------------------------------------------------
@@ -55,7 +57,7 @@ void MoveDistanceY(int32_t distance);
  * Returns: 
  *    None
  */
-int main() {
+ int main() {
 
     // Set the resolution of the ADC.
     AdcMgr.AdcResolution(adcResolution);
@@ -157,17 +159,20 @@ int main() {
 				{ // If Xflag is true move X axis first
 					
                 
-					if ((Ypos > (LevelY + Ytol))|| Ypos < (LevelY - Ytol)) 
-					{ // If Ypos is greater than LevelY + Ytol
-						MoveDistanceY(int32_t((Ypos - LevelY) / deltaY));
-					} 
+					
 					
 					if ((Xpos > (LevelX + Xtol)) || (Xpos < (LevelX - Xtol))) 
 					{ // If Xpos is greater than LevelX + Xtol
 						MoveDistanceX(int32_t((LevelX - Xpos) / deltaX));
 					} 
+					
+					if ((Ypos > (LevelY + Ytol))|| Ypos < (LevelY - Ytol)) 
+					{ // If Ypos is greater than LevelY + Ytol
+						MoveDistanceY(int32_t((Ypos - LevelY) / deltaY));
+					} 
 				
 				} 
+				
 	/*			else 
 				{ // If Xflag is false move Y axis first
 					if ((Ypos > (LevelY + Ytol))|| Ypos < (LevelY - Ytol)) 
@@ -191,7 +196,7 @@ int main() {
 			} 
 		}
 		count += 1;
-		Delay_ms(50);		// Wait a .05 second before the next reading. 50
+		Delay_ms(75);		// Wait a .05 second before the next reading. 50
 	}
 }
  
@@ -215,18 +220,18 @@ int main() {
 void MoveDistanceX(int32_t distance) {
     // Check if a motorX alert is currently preventing motion
     // Clear alert if configured to do so 
-    // if (motorX.StatusReg().bit.AlertsPresent) {
+     if (motorX.StatusReg().bit.AlertsPresent) {
     //     SerialPort.SendLine("MotorX alert detected.");       
     //     PrintAlerts();
-    //     if(HANDLE_ALERTS){
-    //         HandleAlerts();
-    //     } else {
+         if(HANDLE_ALERTS){
+             HandleAlertsX();
+         } //else {
     //         SerialPort.SendLine("Enable automatic alert handling by setting HANDLE_ALERTS to 1.");
     //     }
     //     SerialPort.SendLine("Move canceled.");      
     //     SerialPort.SendLine();
     //     return false;
-    // }
+     }
  
     // SerialPort.Send("Moving distance: ");
     // SerialPort.SendLine(distance);
@@ -262,18 +267,18 @@ void MoveDistanceX(int32_t distance) {
 void MoveDistanceY(int32_t distance) {
     // Check if a motorY alert is currently preventing motion
     // Clear alert if configured to do so 
-    // if (motorY.StatusReg().bit.AlertsPresent) {
+     if (motorY.StatusReg().bit.AlertsPresent) {
     //     SerialPort.SendLine("MotorY alert detected.");       
     //     PrintAlerts();
-    //     if(HANDLE_ALERTS){
-    //         HandleAlerts();
-    //     } else {
+     if(HANDLE_ALERTS){
+		         HandleAlertsY();
+         } 
     //         SerialPort.SendLine("Enable automatic alert handling by setting HANDLE_ALERTS to 1.");
     //     }
     //     SerialPort.SendLine("Move canceled.");      
     //     SerialPort.SendLine();
     //     return false;
-    // }
+     }
  
     // SerialPort.Send("Moving distance: ");
     // SerialPort.SendLine(distance);
@@ -289,20 +294,35 @@ void MoveDistanceY(int32_t distance) {
     }
     /*
     // Check if motorY alert occurred during move
-    // Clear alert if configured to do so 
+    // Clear alert if configured to do so */
     if (motorY.StatusReg().bit.AlertsPresent) {
-        SerialPort.SendLine("MotorY alert detected.");       
-        PrintAlerts();
+      //  SerialPort.SendLine("MotorY alert detected.");       
+    //    PrintAlerts();
         if(HANDLE_ALERTS){
-            HandleAlerts();
-        } else {
-            SerialPort.SendLine("Enable automatic fault handling by setting HANDLE_ALERTS to 1.");
+            HandleAlertsY();
+    //    } else {
+    //        SerialPort.SendLine("Enable automatic fault handling by setting HANDLE_ALERTS to 1.");
         }
-        SerialPort.SendLine("Motion may not have completed as expected. Proceed with caution.");
-        SerialPort.SendLine();
-        return false;
-    } else {
-        SerialPort.SendLine("Move Done");
-        return true;
-    }*/
+    //    SerialPort.SendLine("Motion may not have completed as expected. Proceed with caution.");
+     //   SerialPort.SendLine();
+     //   return false;
+		}
+    }
+
+void HandleAlertsX(){
+	if(motorX.AlertReg().bit.MotorFaulted){
+		motorX.EnableRequest(false);
+		Delay_ms(10);
+		motorX.EnableRequest(true);
+	}
+	motorX.ClearAlerts();
+}
+
+void HandleAlertsY(){
+	if(motorY.AlertReg().bit.MotorFaulted){
+		motorY.EnableRequest(false);
+		Delay_ms(10);
+		motorY.EnableRequest(true);
+	}
+	motorY.ClearAlerts();
 }
