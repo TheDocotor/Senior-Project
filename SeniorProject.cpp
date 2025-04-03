@@ -27,8 +27,8 @@
 #define HANDLE_ALERTS (0)
 #define inputPin ConnectorIO5
 // Define the velocity and acceleration limits to be used for each move
-const int32_t velocityLimit = 10000; // pulses per sec
-const int32_t accelerationLimit = 100000; // pulses per sec^2
+const int32_t velocityLimit = 10000; // 10000pulses per sec
+const int32_t accelerationLimit = 50000; //50000 pulses per sec^2
  
 
 
@@ -72,28 +72,29 @@ int main() {
 	motorY.VelMax(velocityLimit);
 	motorX.AccelMax(accelerationLimit);
 	motorY.AccelMax(accelerationLimit);
-	motorX.EnableRequest(true);
-	motorY.EnableRequest(true);
+	motorX.EnableRequest(false);
+	motorY.EnableRequest(false);
 	
 
     double inputVoltageSUM, inputVoltageY, inputVoltageX, deltaX, deltaY, Xtol, Ytol, SumX, SumY, SumSum, voltageX, voltageY, voltageSum = 0.0;
-    bool LevelFlag = false;	//Used to set level position of first iteration of loop
+    bool LevelFlag, ledState = false;	//Used to set level position of first iteration of loop
     //bool Xflag = true;	//Used to determine which axis to move first
     double LevelX, LevelY, Xpos, Ypos = 0.0;
 	int count = 0;
 	//Define constants for PDP90A
-	const double Lx = 10E-3; // Length of x axis in m
-	const double Ly = 10E-3; // Length of y axis in m
+	//const double Lx = 10E-3; // Length of x axis in m
+	//const double Ly = 10E-3; // Length of y axis in m
 	//const double en = 300E-6; // Output noise voltage in Vrms
 	const double Xvoltol = 2E-2; // X axis tolerance
 	const double Yvoltol = 2E-2; // Y axis tolerance
-	const double deltavoltolY = 3E-4; // Steps for smallest delta voltage
-	const double deltavoltolX = 3E-4; // Steps for smallest delta voltage
+	const double deltavoltolY = 2E-4; // Steps for smallest delta voltage
+	const double deltavoltolX = 2E-4; // Steps for smallest delta voltage
 	
     int16_t adcSUM, adcY, adcX = 0;
  
     while (true) {
-
+	
+		
         //inputVoltageSUM = 0.0;
         //inputVoltageY = 0.0;
         //inputVoltageX = 0.0;
@@ -128,7 +129,20 @@ int main() {
 
 			if (leveling) 
 			{	//Once switch has been set to the on position the bed is level, enter automated leveling state
-				if (LevelFlag==false) 
+				
+				motorX.EnableRequest(true);
+				motorY.EnableRequest(true);
+				Xpos = inputVoltageX;	//New laser position for X
+				Ypos = inputVoltageY;	//New laser position for Y
+				
+				if(inputVoltageSUM < 2.5)
+				{
+					ConnectorLed.State(ledState);
+					ledState = !ledState;
+				}
+				
+				
+				else if (LevelFlag==false) 
 				{	//If level flag is false calibrate level position to be compared to new level data and set flag to true
 					LevelX = inputVoltageX;	//Set LevelX sensor position
 					LevelY = inputVoltageY;	//Set LevelY sensor position
@@ -138,13 +152,9 @@ int main() {
 					deltaY = deltavoltolY;
 					LevelFlag = true;
 				}
-    
 
-				Xpos = inputVoltageX;	//New laser position for X
-				Ypos = inputVoltageY;	//New laser postioin for Y
-
-				//if (Xflag) 
-				//{ // If Xflag is true move X axis first
+				else 
+				{ // If Xflag is true move X axis first
 					
                 
 					if ((Ypos > (LevelY + Ytol))|| Ypos < (LevelY - Ytol)) 
@@ -157,7 +167,7 @@ int main() {
 						MoveDistanceX(int32_t((LevelX - Xpos) / deltaX));
 					} 
 				
-				//} 
+				} 
 	/*			else 
 				{ // If Xflag is false move Y axis first
 					if ((Ypos > (LevelY + Ytol))|| Ypos < (LevelY - Ytol)) 
@@ -176,10 +186,12 @@ int main() {
 			else 
 			{
 				LevelFlag = false; //If switch is off reset LevelFlag
+				motorX.EnableRequest(false);
+				motorY.EnableRequest(false);
 			} 
 		}
 		count += 1;
-		Delay_ms(50);		// Wait a .1 second before the next reading.
+		Delay_ms(50);		// Wait a .05 second before the next reading. 50
 	}
 }
  

@@ -1,7 +1,7 @@
 [TEK32CP10-15-0]
 Chip Version=2.0.16
 UserID0=Unloaded <CPM-SDSK-2310D-ELN-2-0-D>
-File Written=3/26/2025 6:29:08 PM
+File Written=4/2/2025 6:00:17 PM
 Writer=244
 VCS=$Revision$ $Archive$ $Date$
 Options=&H001A0312
@@ -35,7 +35,7 @@ AHhold=50 ; (ms)
 AHFiltTC=49.97 ; (ms)
 TrkErrLim=6400 ; (cnts)
 StopType=0
-TrqLim=7.70 ; (amps)
+TrqLim=15.40 ; (amps)
 HrdStpAltTrqLim=9.24 ; (amps)
 ATmaxTrq=0.00 ; (amps)
 FldBckHS=0.77 ; (amperes)
@@ -55,7 +55,7 @@ DecLim=1066676.302736060 ; (cnts/sec^2)
 VelLim=213333.344885339 ; (cnts/sec)
 EStopDec=1066676.302736060 ; (cnts/sec^2)
 ATmaxAcc=-87.025887471 ; (cnts/sec^2)
-ATmaxVel=219733.328998487 ; (cnts/sec)
+ATmaxVel=170666.655294414 ; (cnts/sec)
 Inertia=0
 Static Friction=0
 Viscous Friction=0
