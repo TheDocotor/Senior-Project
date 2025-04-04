@@ -12,9 +12,11 @@
 #define SerialPort ConnectorUsb
 #define baudRate 9600
 
+#define HANDLE_ALERTS (1)
+
 // Motion parameters
 const int32_t velocityLimit = 10000;
-const int32_t accelerationLimit = 50000;
+const int32_t accelerationLimit = 10000;
 
 // Tolerances for leveling (voltage)
 const double Xvoltol = 2E-2;
@@ -28,6 +30,9 @@ int16_t leveling;
 // Function prototypes
 void MoveDistanceX(int32_t distance);
 void MoveDistanceY(int32_t distance);
+void HandleAlertsY();
+void HandleAlertsX();
+
 
 int main() {
     // Setup ADC and input mode
@@ -133,11 +138,16 @@ int main() {
             }
         }
 
-        Delay_ms(50);
+        Delay_ms(75);
     }
 }
 
 void MoveDistanceX(int32_t distance) {
+    if (motorX.StatusReg().bit.AlertsPresent) {
+        if(HANDLE_ALERTS) {
+	    HandleAlertsX();
+        }
+    }
     motorX.Move(distance);
     while ((!motorX.StepsComplete() || motorX.HlfbState() != MotorDriver::HLFB_ASSERTED) &&
            !motorX.StatusReg().bit.AlertsPresent) {
@@ -146,6 +156,11 @@ void MoveDistanceX(int32_t distance) {
 }
 
 void MoveDistanceY(int32_t distance) {
+    if (motorY.StatusReg().bit.AlertsPresent) {
+	if(HANDLE_ALERTS) {
+	    HandleAlertsY();
+	}
+    }
     motorY.Move(distance);
     while ((!motorY.StepsComplete() || motorY.HlfbState() != MotorDriver::HLFB_ASSERTED) &&
            !motorY.StatusReg().bit.AlertsPresent) {
