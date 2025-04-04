@@ -3,7 +3,7 @@ import csv
 from datetime import datetime
 
 # === CONFIG ===
-PORT = 'COM3'           # Change this to your ClearCore COM port (e.g., '/dev/ttyUSB0' on Linux/Mac)
+PORT = 'COM7'           # Change this to your ClearCore COM port (e.g., '/dev/ttyUSB0' on Linux/Mac)
 BAUD_RATE = 9600
 CSV_FILENAME = 'leveling_data_log.csv'
 

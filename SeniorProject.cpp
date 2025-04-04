@@ -1,4 +1,5 @@
 #include "ClearCore.h"
+#include "SysTiming.h"
 
 // Motor ports
 #define motorX ConnectorM0
@@ -72,6 +73,7 @@ int main() {
     int count = 0;
 
     while (true) {
+		
         leveling = inputPin.State();
 
         // Read ADC values
@@ -97,7 +99,7 @@ int main() {
             count = 0;
 
             // Log to serial with timestamp
-            uint32_t now = SystemMgr.SystemTimeMillis();
+            uint32_t now = Milliseconds();
             char buffer[150];
             snprintf(buffer, sizeof(buffer), "%lu,%.3f,%.3f,%.3f,%.3f,%.3f",
                      now, LevelX, LevelY, inputVoltageX, inputVoltageY, inputVoltageSUM);
@@ -114,6 +116,7 @@ int main() {
                     ledState = !ledState;
                 }
                 else if (!LevelFlag) {
+					//SysTiming.ResetMilliseconds();
                     LevelX = inputVoltageX;
                     LevelY = inputVoltageY;
                     Xtol = Xvoltol;
@@ -168,3 +171,20 @@ void MoveDistanceY(int32_t distance) {
     }
 }
 
+void HandleAlertsX(){
+	if(motorX.AlertReg().bit.MotorFaulted){
+		motorX.EnableRequest(false);
+		Delay_ms(10);
+		motorX.EnableRequest(true);
+	}
+	motorX.ClearAlerts();
+}
+
+void HandleAlertsY(){
+	if(motorY.AlertReg().bit.MotorFaulted){
+		motorY.EnableRequest(false);
+		Delay_ms(10);
+		motorY.EnableRequest(true);
+	}
+	motorY.ClearAlerts();
+}
