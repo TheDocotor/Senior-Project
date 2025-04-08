@@ -22,8 +22,8 @@ const int32_t accelerationLimit = 10000;
 // Tolerances for leveling (voltage)
 const double Xvoltol = 2E-2;
 const double Yvoltol = 2E-2;
-const double deltavoltolX = 1E-4;
-const double deltavoltolY = 1E-4;
+const double deltavoltolX = 2E-4;
+const double deltavoltolY = 2E-4;
 
 // State of input switch
 int16_t leveling;
