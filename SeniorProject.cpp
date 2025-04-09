@@ -20,8 +20,8 @@ const int32_t velocityLimit = 10000;
 const int32_t accelerationLimit = 10000;
 
 // Tolerances for leveling (voltage)
-const double Xvoltol = 2E-2;
-const double Yvoltol = 2E-2;
+const double Xvoltol = 1.5E-2;
+const double Yvoltol = 1.5E-2;
 const double deltavoltolX = 2E-4;
 const double deltavoltolY = 2E-4;
 
