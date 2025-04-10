@@ -90,9 +90,11 @@ void HandleAlertsX();
     double inputVoltageSUM, inputVoltageY, inputVoltageX, SumX, SumY, SumSum, voltageX, voltageY, voltageSum = 0.0; //tracks voltages
     bool LevelFlag, ledState = false;	//Used to set level position of first iteration of loop
     double LevelX, LevelY, Xpos, Ypos = 0.0; //used to track the desired voltages when leveling is activated
+	double delay = 75; //Sets the amount of time in milliseconds before the next sample
+	int num_samples = 10; //Sets the number of samples taken for the average
 	int count = 0; //takes 10 samples then computes the average
-	const double Xtol = 2E-2; // X axis tolerance
-	const double Ytol = 2E-2; // Y axis tolerance
+	const double Xtol = 1.5E-2; // X axis tolerance
+	const double Ytol = 1.5E-2; // Y axis tolerance
 	const double deltaY = 2E-4; // Steps for smallest delta voltage
 	const double deltaX = 2E-4; // Steps for smallest delta voltage
 	
@@ -122,12 +124,12 @@ void HandleAlertsX();
 		SumY += voltageY;
 		SumSum += voltageSum;
 		
-		if(count == 10)
+		if(count == num_samples)
 		{
 			//Compute the average for each voltage and set sum back to zero
-			inputVoltageX = SumX/10;
-			inputVoltageY = SumY/10;
-			inputVoltageSUM =  SumSum/10;
+			inputVoltageX = SumX/num_samples;
+			inputVoltageY = SumY/num_samples;
+			inputVoltageSUM =  SumSum/num_samples;
 			SumY = 0;
 			SumX = 0;
 			SumSum = 0;
@@ -184,7 +186,7 @@ void HandleAlertsX();
 			} 
 		}
 		count += 1;			//increase count to take 10 samples
-		Delay_ms(75);		// Wait a .075 second before the next reading.
+		Delay_ms(delay);		// Wait a .075 second before the next reading.
 	}
 }
  
